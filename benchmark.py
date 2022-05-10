@@ -4,6 +4,7 @@
 import timeit
 import subprocess
 import shlex
+from datetime import timedelta
 import json
 # pip install MediaInfo si pas dispo !
 from MediaInfo import MediaInfo
@@ -19,21 +20,25 @@ format_out = ".mp4"
 
 # -y force overwrite output file
 commands = [
-    "ffmpeg -y -i $in $out", # = ne rien faire, juste changer conteneur mov en format_out
-    "ffmpeg -y -i $in -vcodec libx264 -crf 24 $out",
+    #"ffmpeg -y -i $in $out", # = ne rien faire, juste changer conteneur de file_in en format_out
+    #"ffmpeg -y -i $in -vcodec libx264 -crf 24 $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 0 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 12 -preset ultrafast -acodec aac -strict experimental $out",
     "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental -c:v h264_videotoolbox $out"
+    "ffmpeg -y -i $in -vcodec libx264 -crf 36 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 48 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 51 -preset ultrafast -acodec aac -strict experimental $out"
 ]
 
 
 
 if __name__ == '__main__':
     for i, command in enumerate(commands):
-        print(command, i)
+        file_out = str(i) + format_out
+        print("Commande :", command)
+        print("Output :", file_out)
         
         c_time0 = f_time()
-        
-        file_out = str(i) + format_out
         open(file_out, 'a').close() # create empty file
 
         cmd = shlex.split(command.replace("$in", file_in).replace("$out", file_out)) # -c:v h264_videotoolbox 
@@ -47,22 +52,20 @@ if __name__ == '__main__':
         subprocess.call(cmd) # execute une commande sous forme de liste (cf. au dessus)
         
         c_time1 = f_time()
-
+        print("Durée de compression :", str(timedelta(seconds = (c_time1 - c_time0))))
+        
         m = MediaInfo(filename = file_in)
         file_in_infos = m.getInfo()
 
         m = MediaInfo(filename = file_out)
         file_out_infos = m.getInfo()
-
-        print("Commande : ", command)
         
-        print("Ratio de compression : ", str(int(file_out_infos["fileSize"]) / int(file_in_infos["fileSize"])))
-        print("Durée de compression : ", str(c_time1 - c_time0))
+        print("Ratio de compression :", str(int(file_out_infos["fileSize"]) / int(file_in_infos["fileSize"])))
+        print("")
 
 
 # TODO
 # Generate matrice of compressed files
 # mesure time it takes ----> compare with videos
-# convertir secondes en heures minutes secondes https://stackoverflow.com/questions/775049/how-do-i-convert-seconds-to-hours-minutes-and-seconds
 # ne plus passer par MediaInfo (BEAUCOUP TROP LONG)
 # change size of videos https://superuser.com/questions/933264/getting-the-smallest-video-with-same-quality-how-to-with-ffmpeg
