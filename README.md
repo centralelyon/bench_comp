@@ -37,9 +37,12 @@ La commande ne s'exécute pas assez rapidement, on utilise alors un preset du co
 
 `ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out`
 
-Dans cette commande,`-crf n` représente un facteur de qualité constante, compris entre 0 (lossless) et 51. On teste différentes valeurs. Des valeurs situées autour de 24 semblent correctes. 
+Dans cette commande,`-crf n` représente un facteur de qualité, compris entre 0 (lossless) et 51. On teste différentes valeurs. La convention actuelle, 24 nous donne de très bons résultats : qualité largement exploitable pour un rapport de compression de l'ordre de 15%. On se rend compte que jusqu'à 28 (rapport 7%) la qualité est encore très bonne.
+
+Le preset `ultrafast` rend l'encodage beaucoup plus court, mais il inclut des réglages qui limitent la compression. On réalise des tests pour voir si le réglage de rapidité inférieure permet d'améliorer la compression :
+
+`ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -acodec aac -strict experimental $out`
 
 TODO :
-- finir de trouver le crf optimal
 - sous échantillonnage colorimétrique avec crf 24 et crf opti
 - h.265
