@@ -22,14 +22,12 @@ format_out = ".mp4"
 commands = [
     #"ffmpeg -y -i $in $out", # = ne rien faire, juste changer conteneur de file_in en format_out
     #"ffmpeg -y -i $in -vcodec libx264 -crf 24 $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 22 -preset ultrafast -acodec aac -strict experimental $out",
     "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -acodec aac -strict experimental $out",
     "ffmpeg -y -i $in -vcodec libx264 -crf 26 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 26 -preset superfast -acodec aac -strict experimental $out",
     "ffmpeg -y -i $in -vcodec libx264 -crf 28 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 30 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 32 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 34 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 36 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
 ]
 
 

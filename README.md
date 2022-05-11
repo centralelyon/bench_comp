@@ -27,6 +27,8 @@ Ce repo propose un algorithme permettant d'exécuter dans un shell Unix une list
 
 Résultats globaux
 ===
+**Des résultats plus détaillés (avec images) sont disponibles dans les dossiers de chaque test**
+
 H.264
 ---
 On commence par passer du codec ProRes à H.264 : 
@@ -37,11 +39,18 @@ La commande ne s'exécute pas assez rapidement, on utilise alors un preset du co
 
 `ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out`
 
+Le bitrate
+---
+
 Dans cette commande,`-crf n` représente un facteur de qualité, compris entre 0 (lossless) et 51. On teste différentes valeurs. La convention actuelle, 24 nous donne de très bons résultats : qualité largement exploitable pour un rapport de compression de l'ordre de 15%. On se rend compte que jusqu'à 28 (rapport 7%) la qualité est encore très bonne.
 
 Le preset `ultrafast` rend l'encodage beaucoup plus court, mais il inclut des réglages qui limitent la compression. On réalise des tests pour voir si le réglage de rapidité inférieure permet d'améliorer la compression :
 
 `ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -acodec aac -strict experimental $out`
+
+Le preset
+---
+On se rend compte que le preset `ultrafast`, pour gagner du temps à l'encodage, saute de nombreuses étapes de compression (listées dans les résultats du benchmark du preset). Passer en preset `superfast` permet à la fois de gagner en espace occupé (le ratio de compression en `superfast` vaut 55% à 66% ce qu'il vaut en `ultrafast`) et en qualité visuelle (cf. photos ici dans le repo et les vidéos sur le pipeline), au prix d'un temps d'encodage plus long (environ 50% de plus).
 
 TODO :
 - sous échantillonnage colorimétrique avec crf 24 et crf opti
