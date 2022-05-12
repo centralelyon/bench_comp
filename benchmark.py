@@ -23,11 +23,20 @@ commands = [
     #"ffmpeg -y -i $in $out", # = ne rien faire, juste changer conteneur de file_in en format_out
     #"ffmpeg -y -i $in -vcodec libx264 -crf 24 $out",
     "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 26 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 26 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 28 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel auto -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel vdpau -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel cuda -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel vaapi -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel opencl -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel cuvid -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    
     "ffmpeg -y -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel auto -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel vdpau -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel cuda -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel vaapi -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel opencl -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
+    "ffmpeg -y -hwaccel cuvid -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out"
 ]
 
 
