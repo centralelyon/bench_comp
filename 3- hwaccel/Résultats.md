@@ -12,7 +12,7 @@ Pour ce faire, on va compresser plusieurs fois la même vidéo avec les mêmes p
 
 On va tester également le paramètre `-hwaccel auto` pour retrouver à partir du temps de compression le mode d'accélération choisi automatiquement par `ffmpeg`, pour pouvoir ensuite l'inclure dans notre commande optimisée.
 
-Exécution (dossier _hwaccel_)
+Exécution (pas de dossier (même vidéo à chaque fois))
 ===
 Preset `ultrafast`
 ---

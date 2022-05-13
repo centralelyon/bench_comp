@@ -5,11 +5,8 @@ import timeit
 import subprocess
 import shlex
 from datetime import timedelta
-import json
-# pip install MediaInfo si pas dispo !
-from MediaInfo import MediaInfo
-
-f_time = timeit.default_timer
+from MediaInfo import MediaInfo # pip install MediaInfo si pas dispo !
+import os
 
 #=============================================================================
 #================================CONFIGURATION================================
@@ -22,24 +19,26 @@ format_out = ".mp4"
 commands = [
     #"ffmpeg -y -i $in $out", # = ne rien faire, juste changer conteneur de file_in en format_out
     #"ffmpeg -y -i $in -vcodec libx264 -crf 24 $out",
-    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel auto -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel vdpau -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel cuda -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel vaapi -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel opencl -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel cuvid -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -acodec aac -strict experimental $out",                      #4:2:2 10-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -vf format=yuv422p -acodec aac -strict experimental $out",     #4:2:2 8-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -vf format=yuv420p10le -acodec aac -strict experimental $out", #4:2:0 10-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -vf format=yuv420p -acodec aac -strict experimental $out",     #4:2:0 8-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset ultrafast -vf format=yuv411p -acodec aac -strict experimental $out",     #4:1:1 8-bit
     
-    "ffmpeg -y -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel auto -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel vdpau -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel cuda -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel vaapi -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel opencl -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out",
-    "ffmpeg -y -hwaccel cuvid -i $in -vcodec libx264 -crf 28 -preset superfast -acodec aac -strict experimental $out"
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -acodec aac -strict experimental $out",                      #4:2:2 10-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -vf format=yuv422p -acodec aac -strict experimental $out",     #4:2:2 8-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -vf format=yuv420p10le -acodec aac -strict experimental $out", #4:2:0 10-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -vf format=yuv420p -acodec aac -strict experimental $out",     #4:2:0 8-bit
+    "ffmpeg -y -i $in -vcodec libx264 -crf 24 -preset superfast -vf format=yuv411p -acodec aac -strict experimental $out",     #4:1:1 8-bit    
 ]
 
 
+
+f_time = timeit.default_timer
+
+# get the metadata of the input video once and for all (approximately 5 min)
+m = MediaInfo(filename = file_in)
+file_in_infos = m.getInfo()
 
 if __name__ == '__main__':
     for i, command in enumerate(commands):
@@ -50,7 +49,7 @@ if __name__ == '__main__':
         c_time0 = f_time()
         open(file_out, 'a').close() # create empty file
 
-        cmd = shlex.split(command.replace("$in", file_in).replace("$out", file_out)) # -c:v h264_videotoolbox 
+        cmd = shlex.split(command.replace("$in", file_in).replace("$out", file_out))
         # renvoie liste ["ffmpeg", "-y", "$in"...]
         # .replace("$in", file_in) renvoie ["ffmpeg", "-y", file_in...]
         
@@ -62,19 +61,11 @@ if __name__ == '__main__':
         
         c_time1 = f_time()
         print("Durée de compression :", str(timedelta(seconds = (c_time1 - c_time0))))
-        
-        m = MediaInfo(filename = file_in)
-        file_in_infos = m.getInfo()
+        print("Par rapport à la durée :", str( (c_time1 - c_time0)/float(file_in_infos["duration"]) ))
 
-        m = MediaInfo(filename = file_out)
-        file_out_infos = m.getInfo()
-        
-        print("Ratio de compression :", str(int(file_out_infos["fileSize"]) / int(file_in_infos["fileSize"])))
+        out_size = os.path.getsize(file_out)
+        print("Ratio de compression :", str( out_size/float(file_in_infos["fileSize"]) ))
         print("")
-
 
 # TODO
 # Generate matrice of compressed files
-# mesure time it takes ----> compare with videos
-# ne plus passer par MediaInfo (BEAUCOUP TROP LONG)
-# change size of videos https://superuser.com/questions/933264/getting-the-smallest-video-with-same-quality-how-to-with-ffmpeg
