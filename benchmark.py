@@ -5,8 +5,8 @@ import timeit
 import subprocess
 import shlex
 from datetime import timedelta
-from MediaInfo import MediaInfo # pip install MediaInfo si pas dispo !
 import os
+import ffmpeg
 
 #=============================================================================
 #================================CONFIGURATION================================
@@ -37,8 +37,8 @@ commands = [
 f_time = timeit.default_timer
 
 # get the metadata of the input video once and for all (approximately 5 min)
-m = MediaInfo(filename = file_in)
-file_in_infos = m.getInfo()
+file_duration = float(ffmpeg.probe(file_in)["streams"][0]["duration"])
+in_size = float(ffmpeg.probe(file_in)["format"]["size"])
 
 if __name__ == '__main__':
     for i, command in enumerate(commands):
@@ -61,10 +61,10 @@ if __name__ == '__main__':
         
         c_time1 = f_time()
         print("Durée de compression :", str(timedelta(seconds = (c_time1 - c_time0))))
-        print("Par rapport à la durée :", str( (c_time1 - c_time0)/float(file_in_infos["duration"]) ))
+        print("Par rapport à la durée :", str( (c_time1 - c_time0)/file_duration ))
 
         out_size = os.path.getsize(file_out)
-        print("Ratio de compression :", str( out_size/float(file_in_infos["fileSize"]) ))
+        print("Ratio de compression :", str( out_size/in_size ))
         print("")
 
 # TODO
