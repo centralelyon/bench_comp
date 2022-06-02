@@ -6,14 +6,14 @@ import subprocess
 import shlex
 from datetime import timedelta
 import os
-import ffmpeg
+import ffmpeg #pip install ffmpeg-python (and not other packages)
+import json
 
-#=============================================================================
-#================================CONFIGURATION================================
-#=============================================================================
+#%% Configuration
 
-file_in = "/data/pipeline/pipeline-tracking/2022_CF_Limoges/before_jeudi_droit/A008_11030611_C007.mov"
-format_out = ".mp4"
+file_in = "/data/bench/A008_11030611_C007.mov"
+format_out = ""
+destination = ""
 
 # -y force overwrite output file
 commands = [
@@ -33,39 +33,54 @@ commands = [
 ]
 
 
+#%% Processing
+if not format_out: format_out = '.m4v'
+if not destination: destination = os.getcwd()+'/out/'
 
+Comp = [0]*len(commands)
+Durees = [0]*len(commands)
 f_time = timeit.default_timer
 
-# get the metadata of the input video once and for all (approximately 5 min)
+# get the metadata of the input video once and for all
 file_duration = float(ffmpeg.probe(file_in)["streams"][0]["duration"])
-in_size = float(ffmpeg.probe(file_in)["format"]["size"])
+in_size = os.path.getsize(file_in)
 
 if __name__ == '__main__':
     for i, command in enumerate(commands):
-        file_out = str(i) + format_out
+        file_out = destination + str(i) + format_out
         print("Commande :", command)
-        print("Output :", file_out)
+        print("Output :", str(i) + format_out)
         
         c_time0 = f_time()
         open(file_out, 'a').close() # create empty file
 
         cmd = shlex.split(command.replace("$in", file_in).replace("$out", file_out))
-        # renvoie liste ["ffmpeg", "-y", "$in"...]
-        # .replace("$in", file_in) renvoie ["ffmpeg", "-y", file_in...]
+        # returns a list ["ffmpeg", "-y", "$in"...]
         
         #ffmpeg renvoie bcp bcp de texte (essayer dans un terminal), on log que
         #les erreurs qui empêcheraient l'exécution correcte du code
         cmd.append("-loglevel"); cmd.append("error")
         
-        subprocess.call(cmd) # execute une commande sous forme de liste (cf. au dessus)
+        #subprocess.call(cmd) # execute une commande sous forme de liste (cf. au dessus)
         
         c_time1 = f_time()
-        print("Durée de compression :", str(timedelta(seconds = (c_time1 - c_time0))))
-        print("Par rapport à la durée :", str( (c_time1 - c_time0)/file_duration ))
+        Durees[i] = c_time1 - c_time0
+        print("Durée de compression :", str(timedelta(seconds = Durees[i])))
+        print("Par rapport à la durée :", str( Durees[i]/file_duration ))
 
         out_size = os.path.getsize(file_out)
-        print("Ratio de compression :", str( out_size/in_size ))
+        Comp[i] = out_size/in_size
+        print("Ratio de compression :", str( Comp[i] ))
         print("")
-
-# TODO
-# Generate matrice of compressed files
+        
+        
+        #%% Export
+        data_out = {}
+        data_out["parametres"] = Formats
+        data_out["tps_ultrafast"] = Y[:5]
+        data_out["comp_ultrafast"] = Comp[:5]
+        data_out["tps_superfast"] = Y[5:]
+        data_out["comp_ultrafast"] = Comp[:5]
+        
+        with open(destination + '/results.json', 'a') as json_out: 
+            json.dump(data_out, json_out, indent=4)
